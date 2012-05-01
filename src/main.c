@@ -141,7 +141,10 @@ void init_stuff (int argc, char *argv[])
   }
 
   if(exportPdfFile) {
-     exit(print_to_pdf(exportPdfFile));
+    if(print_to_pdf(exportPdfFile))
+      exit(EXIT_SUCCESS);
+    else
+      exit(EXIT_FAILURE);
   }
 
   ui.cur_item_type = ITEM_NONE;

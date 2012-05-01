@@ -1,0 +1,65 @@
+<!DOCTYPE xournal [
+
+<!ELEMENT xournal (title,lastpage,imageIdCount,page+)>
+<!ELEMENT title   (#PCDATA)>
+<!ELEMENT lastpage EMPTY>
+<!ELEMENT imageIdCount (#PCDATA)>
+<!ELEMENT page    (background,layer+)>
+<!ELEMENT layer   (stroke|text|image)*>
+<!ELEMENT background EMPTY>
+<!ELEMENT stroke (#PCDATA)>
+<!ELEMENT text (#PCDATA)>
+<!ELEMENT image (#PCDATA)>
+
+<!ATTLIST xournal 
+  version   CDATA #REQUIRED
+>
+
+<!ATTLIST lastpage 
+  number    CDATA #REQUIRED
+>
+
+<!ATTLIST page
+  width     CDATA #REQUIRED
+  height    CDATA #REQUIRED
+>
+
+<!ATTLIST background
+  type      CDATA #REQUIRED
+  color     CDATA #IMPLIED
+  style     CDATA #IMPLIED
+  domain    CDATA #IMPLIED
+  filename  CDATA #IMPLIED
+  pageno    CDATA #IMPLIED
+>
+
+<!ATTLIST stroke
+  tool       (pen|
+            eraser|
+            highlighter|
+            text|
+            selectregion|
+            selectrect|
+            vertspace|
+            hand) #REQUIRED
+  color     CDATA #REQUIRED
+  width     CDATA #REQUIRED
+>
+
+<!ATTLIST text
+  font      CDATA #REQUIRED
+  size      CDATA #REQUIRED
+  x         CDATA #REQUIRED
+  y         CDATA #REQUIRED
+  color     CDATA #REQUIRED
+>
+
+<!ATTLIST image
+  left      CDATA #REQUIRED
+  top       CDATA #REQUIRED
+  right     CDATA #REQUIRED
+  bottom    CDATA #REQUIRED
+  embedded  CDATA #IMPLIED
+>
+
+]>
