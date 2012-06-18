@@ -11,10 +11,12 @@ AM_PROG_CC_STDC
 AC_PROG_RANLIB
 AC_HEADER_STDC
 
-pkg_modules="gtk+-2.0 >= 2.10.0 libgnomecanvas-2.0 >= 2.4.0 poppler-glib >= 0.5.4 pangoft2 >= 1.0"
+pkg_modules="gtk+-2.0 >= 2.10.0 x11 >= 1.4 zlib >= 1.2 libgnomecanvas-2.0 >= 2.4.0 poppler-glib >= 0.5.4 pangoft2 >= 1.0"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
+
+AC_CHECK_LIB([m], [hypot], [], [ AC_MSG_ERROR(['Could not find required library']) ])
 
 dnl detect Win32 environment...
 AC_CANONICAL_HOST
