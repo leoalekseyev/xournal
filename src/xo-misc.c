@@ -281,10 +281,6 @@ void clear_undo_stack(void)
       undo->layer->group = NULL;
       delete_layer(undo->layer);
     }
-    else if (undo->type == ITEM_NEW_PAGE || undo->type == ITEM_PASTE_PAGE) {
-      undo->page->group = NULL;
-      delete_page(undo->page);
-    }
     else if (undo->type == ITEM_DELETE_PAGE) {
       undo->page->group = NULL;
       delete_page(undo->page);
