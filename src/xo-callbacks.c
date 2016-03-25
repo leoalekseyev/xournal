@@ -215,14 +215,14 @@ on_fileSaveAs_activate                 (GtkMenuItem     *menuitem,
 
   if (ui.filename!=NULL) {
     gtk_file_chooser_set_filename(GTK_FILE_CHOOSER (dialog), ui.filename);
-    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER (dialog), g_basename(ui.filename));
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER (dialog), g_path_get_basename(ui.filename));
   }
   else
   if (bgpdf.status!=STATUS_NOT_INIT && bgpdf.file_domain == DOMAIN_ABSOLUTE
       && bgpdf.filename != NULL) {
     filename = g_strdup_printf("%s.xoj", bgpdf.filename->s);
     gtk_file_chooser_set_filename(GTK_FILE_CHOOSER (dialog), filename);
-    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER (dialog), g_basename(filename));
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER (dialog), g_path_get_basename(filename));
     g_free(filename);
   }
   else {
@@ -378,7 +378,7 @@ on_filePrintPDF_activate               (GtkMenuItem     *menuitem,
     else
       in_fn = g_strdup_printf("%s.pdf", ui.filename);
     gtk_file_chooser_set_filename(GTK_FILE_CHOOSER (dialog), in_fn);
-    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER (dialog), g_basename(in_fn));
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER (dialog), g_path_get_basename(in_fn));
   } else {
     curtime = time(NULL);
     strftime(stime, 30, "%Y-%m-%d-Note-%H-%M.pdf", localtime(&curtime));
@@ -749,9 +749,9 @@ on_editRedo_activate                   (GtkMenuItem     *menuitem,
     for (llist = redo->page->layers; llist != NULL; llist = llist->next) {
       l = (struct Layer *)llist->data;
       l->group = (GnomeCanvasGroup *)
-	gnome_canvas_item_new(redo->page->group, gnome_canvas_group_get_type(), NULL);
+    gnome_canvas_item_new(redo->page->group, gnome_canvas_group_get_type(), NULL);
       for (itemlist = l->items; itemlist != NULL; itemlist = itemlist->next)
-	make_canvas_item_one(l->group, (struct Item *)itemlist->data);
+    make_canvas_item_one(l->group, (struct Item *)itemlist->data);
     }
     journal.pages = g_list_insert(journal.pages, redo->page, redo->val);
     journal.npages++;
@@ -2656,7 +2656,7 @@ on_canvas_button_press_event           (GtkWidget       *widget,
 #ifdef ERASER_BTN2_FORCE
   if (strstr(event->device->name,"raser"))
     event->button = 2;
-    /* printf("DEBUG eraser button PRESS: Button: ui cur brush is %d, ui cur mapping is %d,  get_mapping gives %d\n",	 ui.cur_brush->tool_type, ui.cur_mapping, get_mapping(event)); */
+    /* printf("DEBUG eraser button PRESS: Button: ui cur brush is %d, ui cur mapping is %d,  get_mapping gives %d\n",    ui.cur_brush->tool_type, ui.cur_mapping, get_mapping(event)); */
 #endif
 
 
@@ -3103,9 +3103,9 @@ on_canvas_motion_notify_event          (GtkWidget       *widget,
     if (ui.cur_item_type == ITEM_STROKE) {
       if (ui.cur_path.num_points <= 1) abort_stroke();
       else {
-        finalize_stroke();
-        if (ui.cur_brush->recognizer) recognize_patterns();
-      }
+      finalize_stroke();
+      if (ui.cur_brush->recognizer) recognize_patterns();
+    }
     }
     else if (ui.cur_item_type == ITEM_ERASURE) {
       finalize_erasure();
@@ -3154,7 +3154,7 @@ on_canvas_motion_notify_event          (GtkWidget       *widget,
       bad_bpath_maybe = gnome_canvas_path_def_bpath (ui.selection->closedlassopath);
     }
     gnome_canvas_item_set((GnomeCanvasItem*) ui.selection->lasso,
-			  "bpath",  ui.selection->closedlassopath , NULL);
+              "bpath",  ui.selection->closedlassopath , NULL);
 
   }
   else if (ui.cur_item_type == ITEM_SELECTRECT) {

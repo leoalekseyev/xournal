@@ -251,6 +251,7 @@ void insert_image(GdkEvent *event, struct Item *item)
   if (item==NULL) {
     item = g_new(struct Item, 1);
     item->type = ITEM_IMAGE;
+    item->image_path = NULL;
     item->image_id = journal.image_id_counter++;
     set_image_path_name(item, insert_fname_base, item->image_id);
     item->canvas_item = NULL;
