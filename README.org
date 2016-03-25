@@ -34,6 +34,7 @@ The latter two branches are inherited from dmgerman's repository.
 - pressing stylus button-2 and dragging duplicates selection
 - autosave patch ported to Windows (see below)
 - image support (combination of my code and Simon Guest's code; see below)
+- copy/paste/duplicate page
 
 ** Patches applied
 

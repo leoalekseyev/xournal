@@ -219,8 +219,14 @@ create_winMain (void)
   GtkWidget *menuOptions;
   GtkWidget *menuOptions_menu;
   GtkWidget *optionsUseXInput;
+  GtkWidget *pen_and_touch;
+  GtkWidget *pen_and_touch_menu;
   GtkWidget *optionsButtonMappings;
   GtkWidget *optionsPressureSensitive;
+  GtkWidget *optionsButtonSwitchMapping;
+  GtkWidget *optionsTouchAsHandTool;
+  GtkWidget *optionsPenDisablesTouch;
+  GtkWidget *optionsDesignateTouchscreen;
   GtkWidget *button2_mapping;
   GtkWidget *button2_mapping_menu;
   GSList *button2Pen_group = NULL;
@@ -253,13 +259,11 @@ create_winMain (void)
   GtkWidget *button3LinkBrush;
   GtkWidget *button3CopyBrush;
   GtkWidget *button3NABrush;
-  GtkWidget *optionsButtonSwitchMapping;
   GtkWidget *separator18;
   GtkWidget *optionsProgressiveBG;
   GtkWidget *optionsPrintRuling;
   GtkWidget *optionsAutoloadPdfXoj;
   GtkWidget *optionsAutoExportPdf;
-  GtkWidget *optionsTouchAsHandTool;
   GtkWidget *optionsLeftHanded;
   GtkWidget *optionsShortenMenus;
   GtkWidget *separator21;
@@ -540,11 +544,11 @@ create_winMain (void)
   editCopy = gtk_image_menu_item_new_from_stock ("gtk-copy", accel_group);
   gtk_widget_show (editCopy);
   gtk_container_add (GTK_CONTAINER (menuEdit_menu), editCopy);
- 
+
   editPaste = gtk_image_menu_item_new_from_stock ("gtk-paste", accel_group);
   gtk_widget_show (editPaste);
   gtk_container_add (GTK_CONTAINER (menuEdit_menu), editPaste);
- 
+
   editDuplicatePage = gtk_image_menu_item_new_with_mnemonic(_("Duplicate P_age"));
   gtk_widget_show (editDuplicatePage);
   gtk_container_add (GTK_CONTAINER (menuEdit_menu), editDuplicatePage);
@@ -1276,13 +1280,36 @@ create_winMain (void)
   gtk_widget_show (optionsUseXInput);
   gtk_container_add (GTK_CONTAINER (menuOptions_menu), optionsUseXInput);
 
+  pen_and_touch = gtk_menu_item_new_with_mnemonic (_("_Pen and Touch"));
+  gtk_widget_show (pen_and_touch);
+  gtk_container_add (GTK_CONTAINER (menuOptions_menu), pen_and_touch);
+
+  pen_and_touch_menu = gtk_menu_new ();
+  gtk_menu_item_set_submenu (GTK_MENU_ITEM (pen_and_touch), pen_and_touch_menu);
+
   optionsButtonMappings = gtk_check_menu_item_new_with_mnemonic (_("_Eraser Tip"));
   gtk_widget_show (optionsButtonMappings);
-  gtk_container_add (GTK_CONTAINER (menuOptions_menu), optionsButtonMappings);
+  gtk_container_add (GTK_CONTAINER (pen_and_touch_menu), optionsButtonMappings);
 
   optionsPressureSensitive = gtk_check_menu_item_new_with_mnemonic (_("_Pressure sensitivity"));
   gtk_widget_show (optionsPressureSensitive);
-  gtk_container_add (GTK_CONTAINER (menuOptions_menu), optionsPressureSensitive);
+  gtk_container_add (GTK_CONTAINER (pen_and_touch_menu), optionsPressureSensitive);
+
+  optionsButtonSwitchMapping = gtk_check_menu_item_new_with_mnemonic (_("Buttons Switch Mappings"));
+  gtk_widget_show (optionsButtonSwitchMapping);
+  gtk_container_add (GTK_CONTAINER (pen_and_touch_menu), optionsButtonSwitchMapping);
+
+  optionsTouchAsHandTool = gtk_check_menu_item_new_with_mnemonic (_("_Touchscreen as Hand Tool"));
+  gtk_widget_show (optionsTouchAsHandTool);
+  gtk_container_add (GTK_CONTAINER (pen_and_touch_menu), optionsTouchAsHandTool);
+
+  optionsPenDisablesTouch = gtk_check_menu_item_new_with_mnemonic (_("Pen disables Touch"));
+  gtk_widget_show (optionsPenDisablesTouch);
+  gtk_container_add (GTK_CONTAINER (pen_and_touch_menu), optionsPenDisablesTouch);
+
+  optionsDesignateTouchscreen = gtk_menu_item_new_with_mnemonic (_("Designate as Touchscreen..."));
+  gtk_widget_show (optionsDesignateTouchscreen);
+  gtk_container_add (GTK_CONTAINER (pen_and_touch_menu), optionsDesignateTouchscreen);
 
   button2_mapping = gtk_menu_item_new_with_mnemonic (_("Button _2 Mapping"));
   gtk_widget_show (button2_mapping);
@@ -1437,10 +1464,6 @@ create_winMain (void)
   button3LinkBrush_group = gtk_radio_menu_item_get_group (GTK_RADIO_MENU_ITEM (button3NABrush));
   gtk_container_add (GTK_CONTAINER (button3_mapping_menu), button3NABrush);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (button3NABrush), TRUE);
-
-  optionsButtonSwitchMapping = gtk_check_menu_item_new_with_mnemonic (_("Buttons Switch Mappings"));
-  gtk_widget_show (optionsButtonSwitchMapping);
-  gtk_container_add (GTK_CONTAINER (menuOptions_menu), optionsButtonSwitchMapping);
 
   separator18 = gtk_separator_menu_item_new ();
   gtk_widget_show (separator18);
@@ -2430,6 +2453,18 @@ create_winMain (void)
   g_signal_connect ((gpointer) optionsPressureSensitive, "activate",
                     G_CALLBACK (on_optionsPressureSensitive_activate),
                     NULL);
+  g_signal_connect ((gpointer) optionsButtonSwitchMapping, "toggled",
+                    G_CALLBACK (on_optionsButtonsSwitchMappings_activate),
+                    NULL);
+  g_signal_connect ((gpointer) optionsTouchAsHandTool, "activate",
+                    G_CALLBACK (on_optionsTouchAsHandTool_activate),
+                    NULL);
+  g_signal_connect ((gpointer) optionsPenDisablesTouch, "activate",
+                    G_CALLBACK (on_optionsPenDisablesTouch_activate),
+                    NULL);
+  g_signal_connect ((gpointer) optionsDesignateTouchscreen, "activate",
+                    G_CALLBACK (on_optionsDesignateTouchscreen_activate),
+                    NULL);
   g_signal_connect ((gpointer) button2Pen, "activate",
                     G_CALLBACK (on_button2Pen_activate),
                     NULL);
@@ -2864,8 +2899,14 @@ create_winMain (void)
   GLADE_HOOKUP_OBJECT (winMain, menuOptions, "menuOptions");
   GLADE_HOOKUP_OBJECT (winMain, menuOptions_menu, "menuOptions_menu");
   GLADE_HOOKUP_OBJECT (winMain, optionsUseXInput, "optionsUseXInput");
+  GLADE_HOOKUP_OBJECT (winMain, pen_and_touch, "pen_and_touch");
+  GLADE_HOOKUP_OBJECT (winMain, pen_and_touch_menu, "pen_and_touch_menu");
   GLADE_HOOKUP_OBJECT (winMain, optionsButtonMappings, "optionsButtonMappings");
   GLADE_HOOKUP_OBJECT (winMain, optionsPressureSensitive, "optionsPressureSensitive");
+  GLADE_HOOKUP_OBJECT (winMain, optionsButtonSwitchMapping, "optionsButtonSwitchMapping");
+  GLADE_HOOKUP_OBJECT (winMain, optionsTouchAsHandTool, "optionsTouchAsHandTool");
+  GLADE_HOOKUP_OBJECT (winMain, optionsPenDisablesTouch, "optionsPenDisablesTouch");
+  GLADE_HOOKUP_OBJECT (winMain, optionsDesignateTouchscreen, "optionsDesignateTouchscreen");
   GLADE_HOOKUP_OBJECT (winMain, button2_mapping, "button2_mapping");
   GLADE_HOOKUP_OBJECT (winMain, button2_mapping_menu, "button2_mapping_menu");
   GLADE_HOOKUP_OBJECT (winMain, button2Pen, "button2Pen");
@@ -3309,4 +3350,3 @@ create_zoomDialog (void)
 
   return zoomDialog;
 }
-

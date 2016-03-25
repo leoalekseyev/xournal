@@ -1578,6 +1578,8 @@ void init_config_default(void)
   ui.view_continuous = TRUE;
   ui.allow_xinput = TRUE;
   ui.discard_corepointer = FALSE;
+  ui.ignore_other_devices = TRUE;
+  ui.ignore_btn_reported_up = TRUE;
   ui.left_handed = FALSE;
   ui.shorten_menus = FALSE;
   ui.shorten_menu_items = g_strdup(DEFAULT_SHORTEN_MENUS);
@@ -1608,6 +1610,9 @@ void init_config_default(void)
   ui.pdf_viewer_cmd = DEFAULT_PDF_VIEWER;
 
   ui.poppler_force_cairo = FALSE;
+  ui.touch_as_handtool = TRUE;
+  ui.pen_disables_touch = TRUE;
+  ui.device_for_touch = g_strdup(DEFAULT_DEVICE_FOR_TOUCH);
   
   // the default UI vertical order
   ui.vertical_order[0][0] = 1; 
@@ -1624,6 +1629,7 @@ void init_config_default(void)
   for (i=1; i<=NUM_BUTTONS; i++) {
     ui.toolno[i] = TOOL_ERASER;
   }
+  ui.toolno[NUM_BUTTONS+1] = TOOL_HAND; // special hand mapping
   for (i=0; i<=NUM_BUTTONS; i++)
     ui.linked_brush[i] = BRUSH_LINKED;
   ui.brushes[0][TOOL_PEN].color_no = COLOR_BLACK;
@@ -1736,9 +1742,24 @@ void save_config_to_file(void)
   update_keyval("general", "discard_corepointer",
     _(" discard Core Pointer events in XInput mode (true/false)"),
     g_strdup(ui.discard_corepointer?"true":"false"));
+  update_keyval("general", "ignore_other_devices",
+    _(" ignore events from other devices while drawing (true/false)"),
+    g_strdup(ui.ignore_other_devices?"true":"false"));
+  update_keyval("general", "ignore_btn_reported_up",
+    _(" do not worry if device reports button isn't pressed while drawing (true/false)"),
+    g_strdup(ui.ignore_btn_reported_up?"true":"false"));
   update_keyval("general", "use_erasertip",
     _(" always map eraser tip to eraser (true/false)"),
     g_strdup(ui.use_erasertip?"true":"false"));
+  update_keyval("general", "touchscreen_as_hand_tool",
+    _(" always map touchscreen device to hand tool (true/false) (requires separate pen and touch devices)"),
+    g_strdup(ui.touch_as_handtool?"true":"false"));
+  update_keyval("general", "pen_disables_touch",
+    _(" disable touchscreen device when pen is in proximity (true/false) (requires separate pen and touch devices)"),
+    g_strdup(ui.pen_disables_touch?"true":"false"));
+  update_keyval("general", "touchscreen_device_name",
+    _(" name of touchscreen device for touchscreen_as_hand_tool"),
+    g_strdup(ui.device_for_touch));
   update_keyval("general", "buttons_switch_mappings",
     _(" buttons 2 and 3 switch mappings instead of drawing (useful for some tablets) (true/false)"),
     g_strdup(ui.button_switch_mapping?"true":"false"));
@@ -2140,7 +2161,13 @@ void load_config_from_file(void)
   parse_keyval_boolean("general", "view_continuous", &ui.view_continuous);
   parse_keyval_boolean("general", "use_xinput", &ui.allow_xinput);
   parse_keyval_boolean("general", "discard_corepointer", &ui.discard_corepointer);
+  parse_keyval_boolean("general", "ignore_other_devices", &ui.ignore_other_devices);
+  parse_keyval_boolean("general", "ignore_btn_reported_up", &ui.ignore_btn_reported_up);
   parse_keyval_boolean("general", "use_erasertip", &ui.use_erasertip);
+  parse_keyval_boolean("general", "touchscreen_as_hand_tool", &ui.touch_as_handtool);
+  parse_keyval_boolean("general", "pen_disables_touch", &ui.pen_disables_touch);
+  if (parse_keyval_string("general", "touchscreen_device_name", &str))
+    if (str!=NULL) ui.device_for_touch = str;
   parse_keyval_boolean("general", "buttons_switch_mappings", &ui.button_switch_mapping);
   parse_keyval_boolean("general", "autoload_pdf_xoj", &ui.autoload_pdf_xoj);
   parse_keyval_boolean("general", "autoexport_pdf", &ui.autoexport_pdf);

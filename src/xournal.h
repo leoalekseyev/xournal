@@ -10,18 +10,18 @@
 /* uncomment to enable a workaround for broken Wacom drivers on
    Windows 7 x64. (The driver bug creates bogus button 2 release events.)
    This workaround watches the device string of xinput
-   and if it contains a string "eraser" it will act as button 2.  
-   For that to work, you might need to explicitly map the button to 
+   and if it contains a string "eraser" it will act as button 2.
+   For that to work, you might need to explicitly map the button to
    eraser in the Wacom control panel.  This was tested with
    Wacom driver 7.02-21 on Win 7 x64; button 2 is the top stylus rocker button. */
 
 //#define WIN32_CURSOR_WORKAROUND_1
-/* uncomment if you'd like to use Dirk Gerrits' cursor fix (described 
+/* uncomment if you'd like to use Dirk Gerrits' cursor fix (described
    here: http://dirkgerrits.com/2009/10/28/xournal-on-windows/)
    This might not work with the latest Windows GTK */
 //#define WIN32_CURSOR_WORKAROUND_2
-/* uncomment if you'd like to use alternative cursor for the pen; 
-   this is a possibly acceptable alternative if the previous workaround 
+/* uncomment if you'd like to use alternative cursor for the pen;
+   this is a possibly acceptable alternative if the previous workaround
    doesn't produce desired effect */
 
 //#define INPUT_DEBUG
@@ -47,7 +47,7 @@
 
 #define CONFIG_DIR ".xournal"
 #define MRU_FILE "recent-files"
-#define MRU_SIZE 8 
+#define MRU_SIZE 8
 #define CONFIG_FILE "config"
 #define BRANCH_ID "-lva"
 
@@ -75,6 +75,9 @@
 #define UNSAVED_AUTOSAVES_DIR "autosaves_tmp" // for new, unsaved files
 #define AUTOSAVE_SUFFIX ".as~"
 #define VBOX_MAIN_NITEMS 5 // number of interface items in vboxMain
+
+// default touch device
+#define DEFAULT_DEVICE_FOR_TOUCH "Touchscr"
 
 /* a string (+ aux data) that maintains a refcount */
 
@@ -284,13 +287,13 @@ typedef struct Selection {
   double aspect_ratio;
   int corner_id;
   double new_x1, new_x2, new_y1, new_y2; // for selection resizing
-  GnomeCanvasItem *canvas_item; // if the selection box is on screen 
+  GnomeCanvasItem *canvas_item; // if the selection box is on screen
   GList *items; // the selected items (a list of struct Item)
   int move_pageno, orig_pageno; // if selection moves to a different page
   struct Layer *move_layer;
   float move_pagedelta;
 
-  GnomeCanvasPathDef  *lassopath ; //  path for lasso selection 
+  GnomeCanvasPathDef  *lassopath ; //  path for lasso selection
   GnomeCanvasPathDef  *closedlassopath ; // for drawing lasso shape
   GnomeCanvasBpath *lasso; // for drawing lasso shape
 } Selection;
@@ -301,13 +304,17 @@ typedef struct UIData {
   struct Layer *cur_layer;
   gboolean saved; // is file saved ?
   struct Brush *cur_brush;  // the brush in use (one of brushes[...])
-  int toolno[NUM_BUTTONS+1];  // the number of the currently selected tool
+  int toolno[NUM_BUTTONS+2];  // the number of the currently selected tool; two more reserved for eraser tip and touch device
   struct Brush brushes[NUM_BUTTONS+1][NUM_STROKE_TOOLS]; // the current pen, eraser, hiliter
   struct Brush default_brushes[NUM_STROKE_TOOLS]; // the default ones
   int linked_brush[NUM_BUTTONS+1]; // whether brushes are linked across buttons
   int cur_mapping; // the current button number for mappings
   gboolean button_switch_mapping; // button clicks switch button 1 mappings
   gboolean use_erasertip;
+  gboolean touch_as_handtool; // always map touch device to hand tool?
+  gboolean pen_disables_touch; // pen proximity should disable touch device?
+  gboolean in_proximity;
+  char *device_for_touch;
   int which_mouse_button; // the mouse button drawing the current path
   int which_unswitch_button; // if button_switch_mapping, the mouse button that switched the mapping
   struct Page default_page;  // the model for the default page
@@ -327,6 +334,9 @@ typedef struct UIData {
   gboolean is_corestroke; // this stroke is painted with core pointer
   gboolean saved_is_corestroke;
   GdkDevice *stroke_device; // who's painting this stroke
+  gboolean ignore_other_devices;
+  gboolean ignore_btn_reported_up; // config setting: ignore button reported up
+  gboolean current_ignore_btn_reported_up;
   int screen_width, screen_height; // initial screen size, for XInput events
   double hand_refpt[2];
   int hand_scrollto_cx, hand_scrollto_cy;
@@ -339,6 +349,8 @@ typedef struct UIData {
   gboolean in_update_page_stuff; // semaphore to avoid scrollbar retroaction
   struct Selection *selection;
   GdkCursor *cursor;
+  GdkPixbuf *pen_cursor_pix, *hiliter_cursor_pix;
+  gboolean pen_cursor; // use pencil cursor (default is a dot in current color)
   gboolean progressive_bg; // update PDF bg's one at a time
   char *mrufile, *configfile; // file names for MRU & config
   char *mru[MRU_SIZE]; // MRU data
@@ -365,7 +377,6 @@ typedef struct UIData {
   gulong resize_signal_handler;
   gdouble hiliter_opacity;
   guint hiliter_alpha_mask;
-  gboolean touch_as_handtool; // do we always use the touch screen as handtool
   gboolean left_handed; // left-handed mode?
   gboolean auto_save_prefs; // auto-save preferences ?
   gboolean shorten_menus; // shorten menus ?
@@ -380,6 +391,7 @@ typedef struct UIData {
   GtkPrintSettings *print_settings;
 #endif
   gboolean poppler_force_cairo; // force poppler to use cairo
+  gboolean warned_generate_fontconfig; // for win32 fontconfig cache
   char *xournal_exe_cmd; // command line w/ which xournal was invoked (argv[0])
   gboolean this_is_autosave; // use to preclude auto-pdf export on autosave
 } UIData;

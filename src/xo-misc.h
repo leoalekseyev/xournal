@@ -22,13 +22,16 @@ struct Refstring *refstring_ref(struct Refstring *rs);
 void refstring_unref(struct Refstring *rs);
 
 // helper functions
+int finite_sized(double x);
 void init_layer(struct Layer *l);
 struct BBox make_bbox_from_lrtb(double l, double r, double t, double b);
 struct BBox bbox_add_offset_lrtb(struct BBox a, double l, double r, double t, double b);
 void make_bbox_copy(struct BBox *bbfrom, struct BBox *bbto, int padding);
 void get_pointer_coords(GdkEvent *event, double *ret);
+void get_current_pointer_coords(double *ret);
 double get_pressure_multiplier(GdkEvent *event);
 void fix_xinput_coords(GdkEvent *event);
+void emergency_enable_xinput(GdkInputMode mode);
 void update_item_bbox(struct Item *item);
 void make_page_clipbox(struct Page *pg);
 GnomeCanvasItem* canvas_item_new_for_selection(int type);
@@ -139,6 +142,9 @@ wrapper_poppler_page_render_to_pixbuf (PopplerPage *page,
 			       double scale,
 			       int rotation,
 			       GdkPixbuf *pixbuf);
+
+// wrapper for gtk_dialog_run that disables xinput (bug #159)
+gint wrapper_gtk_dialog_run(GtkDialog *dialog);
 
 // defines for paper rulings
 
